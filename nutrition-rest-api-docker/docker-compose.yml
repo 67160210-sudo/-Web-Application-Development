@@ -1,0 +1,36 @@
+services:
+  api:
+    build: ./backend
+    container_name: nutrition_api
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: mysql+pymysql://nutrition:nutrition@db:3306/nutrition_db
+      SECRET_KEY: change-this-secret-key
+      ACCESS_TOKEN_EXPIRE_MINUTES: 120
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  db:
+    image: mysql:8.4
+    container_name: nutrition_mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: nutrition_db
+      MYSQL_USER: nutrition
+      MYSQL_PASSWORD: nutrition
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "nutrition", "-pnutrition"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
