@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ครัวชัวร์ — วิเคราะห์คุณค่าทางโภชนาการ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chonburi&family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --rice:#F7F1E1;
+    --rice-deep:#F0E7CE;
+    --ink:#211C14;
+    --pandan:#24392E;
+    --pandan-light:#33513F;
+    --chili:#C63D2F;
+    --chili-deep:#A62F23;
+    --turmeric:#DE9F2E;
+    --khaki:#C9B98C;
+    --paper-shadow: 0 18px 40px -18px rgba(33,28,20,0.35);
+    --radius: 2px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--rice);
+    color:var(--ink);
+    font-family:'IBM Plex Sans Thai', sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.display{
+    font-family:'Chonburi', 'IBM Plex Sans Thai', sans-serif;
+    font-weight:400;
+    line-height:1.15;
+    margin:0;
+  }
+  .mono{font-family:'Space Mono', monospace;}
+  button{font-family:inherit;cursor:pointer;}
+  a{color:inherit;}
+
+  ::selection{background:var(--turmeric); color:var(--ink);}
+
+  /* focus visibility */
+  button:focus-visible, input:focus-visible, select:focus-visible{
+    outline:3px solid var(--chili);
+    outline-offset:2px;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.001ms !important; transition-duration:0.001ms !important;}
+  }
+
+  /* ---------- SHELL ---------- */
+  #app{min-height:100vh; display:flex; flex-direction:column;}
+
+  header.topbar{
+    background:var(--pandan);
+    color:var(--rice);
+    padding:18px 28px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:20px;
+    position:sticky; top:0; z-index:40;
+    border-bottom:4px solid var(--turmeric);
+  }
+  .logo{
+    display:flex; align-items:center; gap:10px;
+    font-family:'Chonburi', sans-serif;
+    font-size:22px;
+    letter-spacing:0.5px;
+  }
+  .logo-mark{
+    width:34px;height:34px; border-radius:50%;
+    background:var(--turmeric);
+    display:flex;align-items:center;justify-content:center;
+    color:var(--pandan); font-size:18px; font-weight:700;
+    box-shadow:0 0 0 3px rgba(247,241,225,0.25);
+  }
+  .steprail{
+    display:flex; align-items:center; gap:2px;
+    overflow-x:auto;
+  }
+  .steprail::-webkit-scrollbar{display:none;}
+  .step-dot{
+    display:flex; flex-direction:column; align-items:center; gap:4px;
+    background:none; border:none; color:rgba(247,241,225,0.5);
+    padding:4px 10px; position:relative; white-space:nowrap;
+  }
+  .step-dot .num{
+    width:26px;height:26px;border-radius:50%;
+    border:1.5px solid rgba(247,241,225,0.4);
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Space Mono',monospace; font-size:12px;
+    transition:all .25s ease;
+  }
+  .step-dot .lbl{font-size:11px; letter-spacing:.2px;}
+  .step-dot.active{color:var(--rice);}
+  .step-dot.active .num{background:var(--turmeric); border-color:var(--turmeric); color:var(--pandan); font-weight:700;}
+  .step-dot.done{color:rgba(247,241,225,0.85);}
+  .step-dot.done .num{background:rgba(247,241,225,0.15); border-color:var(--rice);}
+  .step-dot:not(.clickable){cursor:default;}
+  .step-dot.clickable{cursor:pointer;}
+  .step-dot.clickable:hover .num{border-color:var(--rice);}
+
+  main{
+    flex:1;
+    width:100%;
+    max-width:1180px;
+    margin:0 auto;
+    padding:40px 28px 80px;
+  }
+
+  .layout{
+    display:grid;
+    grid-template-columns: 1.35fr 1fr;
+    gap:40px;
+    align-items:start;
+  }
+  @media (max-width:880px){
+    .layout{grid-template-columns:1fr;}
+  }
+
+  .panel{
+    background:#fff;
+    border:1px solid var(--khaki);
+    border-top:5px solid var(--turmeric);
+    border-radius:var(--radius);
+    padding:36px 36px 32px;
+    box-shadow:var(--paper-shadow);
+  }
+
+  .eyebrow{
+    font-family:'Space Mono',monospace;
+    font-size:12px;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    color:var(--chili);
+    margin-bottom:10px;
+    display:block;
+  }
+
+  .ticket-head{
+    display:flex; align-items:baseline; justify-content:space-between; gap:16px;
+    margin-bottom:6px; flex-wrap:wrap;
+  }
+  .ticket-head .th-num{
+    font-family:'Space Mono',monospace; font-size:11.5px; letter-spacing:1.5px;
+    color:#8a8267;
+  }
+  .ticket-head .th-num .dot{color:var(--chili);}
+  .section-title-row{margin-bottom:8px;}
+  .section-title-row .section-title{margin-bottom:0;}
+
+  /* ---------- HERO (step 1) : order-ticket concept ---------- */
+  .hero-panel{
+    background:var(--rice-deep);
+    border:1px solid var(--khaki);
+    border-bottom:none;
+    box-shadow:var(--paper-shadow);
+    padding:52px 52px 46px;
+    position:relative;
+  }
+  .hero-panel::after{
+    content:"";
+    position:absolute; left:0; right:0; bottom:-17px; height:18px;
+    background:
+      linear-gradient(-45deg, var(--rice) 9px, transparent 0) 0 0/18px 18px repeat-x,
+      linear-gradient(45deg, var(--rice) 9px, transparent 0) 0 0/18px 18px repeat-x;
+  }
+  .ticket-num{
+    font-family:'Space Mono',monospace; font-size:12px; letter-spacing:1.5px;
+    color:#8a8267; display:flex; align-items:center; gap:10px; margin-bottom:22px;
+  }
+  .ticket-num .dot{width:6px;height:6px;border-radius:50%;background:var(--chili);}
+
+  .hero-grid{
+    display:grid; grid-template-columns:1.15fr 0.85fr; gap:44px; align-items:center;
+  }
+  @media (max-width:880px){ .hero-grid{grid-template-columns:1fr;} }
+
+  .hero-panel h1{
+    font-size:clamp(36px, 4.6vw, 58px);
+    line-height:1.32;
+    color:var(--pandan);
+  }
+  .hero-panel h1 .accent{color:var(--chili);}
+  .hero-panel p.lead{
+    font-size:16.5px; line-height:1.75; margin-top:18px; max-width:50ch;
+    color:#453d2e;
+  }
+  .cta-row{margin-top:32px; display:flex; flex-direction:column; align-items:flex-start; gap:10px;}
+  .cta{
+    background:var(--chili);
+    color:var(--rice);
+    border:none;
+    padding:16px 30px;
+    font-size:16px;
+    font-weight:600;
+    border-radius:var(--radius);
+    display:inline-flex; align-items:center; gap:10px;
+    transition:transform .15s ease, background .15s ease;
+    box-shadow:0 10px 24px -10px rgba(198,61,47,0.55);
+  }
+  .cta:hover{background:var(--chili-deep); transform:translateY(-2px);}
+  .cta svg{width:18px;height:18px;}
+  .cta-note{font-size:12.5px; color:#8a8267;}
+
+  /* sticker frame reused from the nutrition-label language, seen for the first time here */
+  .sticker-frame{
+    background:#fff;
+    border:3px solid var(--ink);
+    box-shadow:8px 8px 0 var(--khaki);
+    transform:rotate(-1.4deg);
+    padding:18px 18px 14px;
+    max-width:320px;
+    margin:0 auto;
+  }
+  .sticker-frame svg{display:block; width:100%; height:auto;}
+  .sticker-caption{
+    margin-top:14px; text-align:center; font-family:'Space Mono',monospace;
+    font-size:11.5px; letter-spacing:1px; color:#8a8267; text-transform:uppercase;
+  }
+
+  .receipt-divider{
+    border:none; border-top:1.5px dashed var(--khaki);
+    margin:44px 0 26px;
+  }
+  .receipt-list{list-style:none; margin:0; padding:0;}
+  .receipt-list li{
+    display:flex; align-items:baseline; gap:10px;
+    padding:13px 0; border-bottom:1px solid #e2d9bf;
+    font-size:15px; color:var(--ink);
+  }
+  .receipt-list li:first-child{padding-top:0;}
+  .receipt-list .ri-num{
+    font-family:'Space Mono',monospace; font-size:12px; color:var(--chili); flex:none; width:20px;
+  }
+  .receipt-list .ri-text{flex:none;}
+  .receipt-list .ri-desc{
+    flex:1; font-size:12.5px; color:#8a8267; text-align:right; max-width:34ch;
+  }
+  @media (max-width:640px){
+    .receipt-list li{flex-wrap:wrap;}
+    .receipt-list .ri-desc{text-align:left; width:100%; margin-left:30px;}
+  }
+  .receipt-list .ri-check{
+    flex:none; color:var(--pandan); font-weight:700; font-family:'Space Mono',monospace;
+  }
+
+  /* ---------- FORM ELEMENTS ---------- */
+  .field{margin-bottom:22px;}
+  .field label{
+    display:block; font-size:13px; font-weight:600; margin-bottom:8px;
+    color:var(--pandan); letter-spacing:.2px;
+  }
+  .field .hint{font-size:12px; color:#8a8267; margin-top:6px;}
+  input[type=text], input[type=number], select{
+    width:100%;
+    border:1.5px solid var(--khaki);
+    background:var(--rice);
+    padding:12px 14px;
+    font-size:15px;
+    border-radius:var(--radius);
+    font-family:'IBM Plex Sans Thai', sans-serif;
+    color:var(--ink);
+  }
+  input:focus, select:focus{border-color:var(--pandan);}
+
+  .row{display:flex; gap:14px;}
+  .row > *{flex:1;}
+
+  .add-row{display:flex; gap:10px; align-items:flex-end;}
+  .add-row .field{flex:1; margin-bottom:0;}
+  .btn-secondary{
+    background:var(--pandan); color:var(--rice); border:none;
+    padding:12px 18px; border-radius:var(--radius); font-weight:600; font-size:14px;
+    white-space:nowrap;
+    transition:background .15s ease;
+  }
+  .btn-secondary:hover{background:var(--pandan-light);}
+  .btn-secondary:disabled{background:#b9b09a; cursor:not-allowed;}
+
+  .chips{display:flex; flex-wrap:wrap; gap:10px; margin-top:18px;}
+  .chip{
+    display:flex; align-items:center; gap:10px;
+    background:#fff; border:1.5px solid var(--ink);
+    padding:8px 8px 8px 10px; border-radius:3px; font-size:13.5px;
+    position:relative;
+  }
+  .chip::before{
+    content:""; width:6px; height:6px; border-radius:50%;
+    background:var(--turmeric); border:1px solid var(--ink); flex:none;
+  }
+  .chip button{
+    background:var(--chili); color:#fff; border:none;
+    width:20px;height:20px;border-radius:50%;
+    font-size:12px; line-height:1; display:flex; align-items:center; justify-content:center;
+  }
+  .empty-note{
+    font-size:13.5px; color:#8a8267; padding:14px; border:1px dashed var(--khaki);
+    border-radius:var(--radius); margin-top:16px; background:var(--rice-deep);
+  }
+
+  .qty-table{width:100%; border-collapse:collapse; margin-top:6px;}
+  .qty-table th{
+    text-align:left; font-size:11px; text-transform:uppercase; letter-spacing:1.5px;
+    color:#fff; background:var(--pandan); padding:10px 10px; font-family:'Space Mono',monospace;
+  }
+  .qty-table th:first-child{border-radius:3px 0 0 0;}
+  .qty-table th:last-child{border-radius:0 3px 0 0;}
+  .qty-table tr:nth-child(even) td{background:var(--rice-deep);}
+  .qty-table td{padding:12px 10px; border-bottom:1px solid var(--khaki); vertical-align:middle;}
+  .qty-table .iname{font-weight:600; font-size:14px; color:var(--pandan);}
+  .qty-table .gramnote{font-size:11.5px; color:#8a8267; font-family:'Space Mono',monospace;}
+  .qty-table input, .qty-table select{padding:8px 10px; font-size:13.5px;}
+
+  .nav-buttons{display:flex; justify-content:space-between; margin-top:32px; gap:12px;}
+  .btn-ghost{
+    background:none; border:1.5px solid var(--pandan); color:var(--pandan);
+    padding:12px 22px; border-radius:var(--radius); font-weight:600; font-size:14px;
+  }
+  .btn-ghost:hover{background:var(--rice-deep);}
+  .btn-primary{
+    background:var(--chili); color:#fff; border:none;
+    padding:12px 26px; border-radius:var(--radius); font-weight:600; font-size:14px;
+    box-shadow:0 8px 18px -8px rgba(198,61,47,0.55);
+  }
+  .btn-primary:hover{background:var(--chili-deep);}
+  .btn-primary:disabled{background:#c9b8a8; box-shadow:none; cursor:not-allowed;}
+
+  /* ---------- LOADING (step 4) ---------- */
+  .loading-wrap{
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    padding:70px 20px; text-align:center; gap:22px;
+  }
+  .pot{width:74px; height:74px; position:relative;}
+  .pot svg{width:100%; height:100%;}
+  .steam{
+    position:absolute; top:-14px; left:50%; transform:translateX(-50%);
+    width:6px; height:20px; border-radius:4px; background:var(--khaki);
+    animation:rise 1.4s ease-in-out infinite;
+    opacity:0.8;
+  }
+  @keyframes rise{
+    0%{transform:translate(-50%,6px); opacity:0;}
+    40%{opacity:0.8;}
+    100%{transform:translate(-50%,-16px); opacity:0;}
+  }
+  .loading-wrap h3{color:var(--pandan); font-size:20px;}
+  .loading-wrap p{color:#8a8267; font-size:14px; max-width:36ch;}
+  .progress-bar{width:220px; height:6px; background:var(--rice-deep); border-radius:4px; overflow:hidden; border:1px solid var(--khaki);}
+  .progress-fill{height:100%; width:0%; background:var(--turmeric); transition:width .4s ease;}
+
+  /* ---------- NUTRITION LABEL (signature element) ---------- */
+  .label-card{
+    background:#fff;
+    border:3px solid var(--ink);
+    padding:0;
+    position:sticky; top:100px;
+    box-shadow:8px 8px 0 var(--khaki);
+    transform:rotate(0.4deg);
+  }
+  .label-head{
+    padding:16px 20px 12px;
+    border-bottom:10px solid var(--ink);
+  }
+  .label-head .lbl-eyebrow{
+    font-family:'Space Mono',monospace; font-size:11px; letter-spacing:2px; text-transform:uppercase; color:#8a8267;
+  }
+  .label-head h2{font-size:26px; color:var(--ink); margin-top:2px;}
+  .label-sub{
+    padding:10px 20px; border-bottom:1px solid var(--ink); font-size:13px;
+    display:flex; justify-content:space-between;
+  }
+  .label-cal{
+    padding:12px 20px; border-bottom:8px solid var(--ink);
+    display:flex; justify-content:space-between; align-items:baseline;
+  }
+  .label-cal .lc-label{font-family:'Chonburi',sans-serif; font-size:16px;}
+  .label-cal .lc-num{font-family:'Space Mono',monospace; font-size:34px; font-weight:700; color:var(--chili);}
+  .label-rows{padding:0 20px;}
+  .label-row{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:9px 0; border-bottom:1px solid #d8d0ba; font-size:14px;
+  }
+  .label-row.indent{padding-left:16px; font-size:13px; color:#5b5340;}
+  .label-row .rdi{font-family:'Space Mono',monospace; font-size:12.5px; color:var(--pandan); font-weight:700;}
+  .label-row .val{font-family:'Space Mono',monospace; font-weight:700;}
+  .label-foot{
+    padding:14px 20px 20px; font-size:11px; color:#8a8267; line-height:1.5;
+  }
+  .label-empty{
+    padding:40px 24px; text-align:center; color:#8a8267; font-size:13.5px; line-height:1.6;
+  }
+  .serving-toggle{
+    display:flex; gap:0; margin:16px 20px 4px; border:1.5px solid var(--pandan); border-radius:var(--radius); overflow:hidden;
+  }
+  .serving-toggle button{
+    flex:1; background:#fff; border:none; padding:9px; font-size:12.5px; font-weight:600; color:var(--pandan);
+  }
+  .serving-toggle button.active{background:var(--pandan); color:var(--rice);}
+
+  /* ---------- RESULTS PAGE ---------- */
+  .result-hero{display:flex; align-items:center; gap:16px; margin-bottom:26px;}
+  .result-hero .num-big{font-family:'Space Mono',monospace; font-size:52px; font-weight:700; color:var(--chili);}
+  .result-hero .num-unit{font-size:14px; color:#8a8267;}
+  .bar-group{margin-bottom:16px;}
+  .bar-label{display:flex; justify-content:space-between; font-size:13px; margin-bottom:5px;}
+  .bar-track{height:10px; background:var(--rice-deep); border:1px solid var(--khaki); border-radius:6px; overflow:hidden;}
+  .bar-fill{height:100%; background:var(--turmeric); border-radius:6px 0 0 6px; transition:width .6s ease;}
+  .bar-fill.chili{background:var(--chili);}
+  .bar-fill.pandan{background:var(--pandan);}
+
+  /* ---------- RECOMMENDATIONS ---------- */
+  .rec-card{
+    display:flex; gap:16px; padding:20px; border:1px solid var(--khaki);
+    border-left:5px solid var(--turmeric); border-radius:var(--radius); margin-bottom:16px;
+    background:var(--rice-deep);
+  }
+  .rec-card.warn{border-left-color:var(--chili);}
+  .rec-card .ricon{
+    width:40px;height:40px; flex:none; border-radius:50%; background:#fff; border:2px solid var(--ink);
+    display:flex; align-items:center; justify-content:center; font-size:17px;
+  }
+  .rec-card.warn .ricon{background:#fbe9e4;}
+  .rec-card:not(.warn) .ricon{background:#eef3e9;}
+  .rec-card h3{font-size:15.5px; color:var(--pandan); margin-bottom:5px;}
+  .rec-card p{margin:0; font-size:13.5px; line-height:1.6; color:#453d2e;}
+  .rec-card .tag{
+    display:inline-block; margin-top:8px; font-family:'Space Mono',monospace; font-size:11px;
+    background:#fff; border:1px solid var(--khaki); padding:2px 8px; border-radius:10px; color:#5b5340;
+  }
+
+  footer.site-foot{
+    text-align:center; padding:26px; font-size:12px; color:#8a8267;
+    border-top:1px solid var(--khaki);
+  }
+
+  .section-title{color:var(--pandan); font-size:24px; margin-bottom:6px;}
+  .section-desc{color:#5b5340; font-size:14px; margin-bottom:26px; max-width:60ch; line-height:1.6;}
+</style>
+</head>
+<body>
+<div id="app"></div>
+    <!-- The action attribute specifies which backend file processes the data -->
+    <form action="submit.php" method="POST">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required><br><br>
+
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required><br><br>
+
+        <button type="submit" name="submit">Submit</button>
+    </form><div id="app"></div>
+<script>
+/* ===================== NUTRITION DATABASE (per 100g) ===================== */
+const DB = {
+  "หมูสับ":        {kcal:296, protein:17.9, carb:0,    fat:25,  sugar:0,   sodium:62},
+  "เนื้อไก่":       {kcal:165, protein:31,   carb:0,    fat:3.6, sugar:0,   sodium:74},
+  "กุ้ง":          {kcal:99,  protein:24,   carb:0.2,  fat:0.3, sugar:0,   sodium:111},
+  "ไข่ไก่":         {kcal:155, protein:13,   carb:1.1,  fat:11,  sugar:1.1, sodium:124},
+  "ข้าวสวย":       {kcal:130, protein:2.7,  carb:28,   fat:0.3, sugar:0.1, sodium:1},
+  "เส้นก๋วยเตี๋ยว": {kcal:109, protein:0.9,  carb:25,   fat:0.2, sugar:0.1, sodium:9},
+  "น้ำตาลทราย":    {kcal:387, protein:0,    carb:100,  fat:0,   sugar:100, sodium:1},
+  "น้ำตาลปี๊บ":     {kcal:375, protein:0.2,  carb:97,   fat:0.2, sugar:90,  sodium:20},
+  "น้ำปลา":        {kcal:35,  protein:5,    carb:3.6,  fat:0,   sugar:0,   sodium:7850},
+  "ซีอิ๊วขาว":      {kcal:60,  protein:6,    carb:6,    fat:0,   sugar:1,   sodium:5493},
+  "ซอสหอยนางรม":   {kcal:51,  protein:2.7,  carb:11,   fat:0.1, sugar:9,   sodium:2733},
+  "น้ำมันพืช":      {kcal:884, protein:0,    carb:0,    fat:100, sugar:0,   sodium:0},
+  "กระเทียม":      {kcal:149, protein:6.4,  carb:33,   fat:0.5, sugar:1,   sodium:17},
+  "หอมแดง":        {kcal:72,  protein:2.5,  carb:16.8, fat:0.1, sugar:4.2, sodium:12},
+  "พริกขี้หนู":     {kcal:40,  protein:1.9,  carb:9,    fat:0.4, sugar:5,   sodium:9},
+  "มะนาว":         {kcal:25,  protein:0.4,  carb:8.4,  fat:0.2, sugar:1.7, sodium:2},
+  "ถั่วงอก":       {kcal:30,  protein:3.2,  carb:5.9,  fat:0.2, sugar:4.1, sodium:6},
+  "ต้นหอม":        {kcal:32,  protein:1.8,  carb:7.3,  fat:0.2, sugar:2.3, sodium:16},
+  "กะทิ":          {kcal:230, protein:2.3,  carb:5.5,  fat:23.8,sugar:3.3, sodium:15},
+  "เกลือ":         {kcal:0,   protein:0,    carb:0,    fat:0,   sugar:0,   sodium:38758},
+  "พริกแกง":       {kcal:120, protein:3,    carb:15,   fat:5,   sugar:3,   sodium:1200},
+  "เต้าหู้":        {kcal:76,  protein:8,    carb:1.9,  fat:4.8, sugar:0.6, sodium:7},
+  "ผักบุ้ง":        {kcal:19,  protein:2.6,  carb:3.1,  fat:0.2, sugar:1.5, sodium:65},
+};
+const UNIT_TO_GRAM = { "กรัม":1, "ช้อนโต๊ะ":15, "ช้อนชา":5, "ถ้วย":200, "มิลลิลิตร":1 };
+const UNITS = Object.keys(UNIT_TO_GRAM);
+// Thai reference daily intake (approx, per 2000 kcal diet) for %RDI display
+const RDI = { fat:65, carb:300, protein:50, sodium:2000, sugar:60 };
+
+const STEP_LABELS = ["หน้าแรก","สูตรอาหาร","ปริมาณ","วิเคราะห์","ผลลัพธ์","คำแนะนำ"];
+
+/* ===================== STATE ===================== */
+let state = {
+  step: 1,
+  maxStep: 1,
+  dishName: "",
+  ingredients: [],      // {name, amount, unit}
+  servings: 1,
+  loadingProgress: 0,
+  results: null,        // computed totals
+  servingView: "total",  // 'total' | 'serving'
+  resultSubView: "calories", // 'calories' | 'detail'
+};
+
+function resetState(){
+  state = {step:1, maxStep:1, dishName:"", ingredients:[], servings:1, loadingProgress:0, results:null, servingView:"total", resultSubView:"calories"};
+  render();
+}
+
+/* ===================== CALCULATIONS ===================== */
+function gramsOf(ing){ return ing.amount * (UNIT_TO_GRAM[ing.unit] ?? 1); }
+
+function computeTotals(ingredients){
+  const total = {kcal:0, protein:0, carb:0, fat:0, sugar:0, sodium:0};
+  const contributions = []; // per ingredient sodium/sugar/kcal contribution
+  ingredients.forEach(ing => {
+    const data = DB[ing.name];
+    if(!data) return;
+    const g = gramsOf(ing);
+    const factor = g/100;
+    const c = {
+      name: ing.name,
+      kcal: data.kcal*factor, protein: data.protein*factor, carb: data.carb*factor,
+      fat: data.fat*factor, sugar: data.sugar*factor, sodium: data.sodium*factor
+    };
+    total.kcal += c.kcal; total.protein += c.protein; total.carb += c.carb;
+    total.fat += c.fat; total.sugar += c.sugar; total.sodium += c.sodium;
+    contributions.push(c);
+  });
+  return {total, contributions};
+}
+
+function computeRecommendations(results, servings){
+  const {total, contributions} = results;
+  const perServ = {
+    kcal: total.kcal/servings, sodium: total.sodium/servings, sugar: total.sugar/servings,
+    fat: total.fat/servings
+  };
+  const recs = [];
+
+  const topSodium = [...contributions].sort((a,b)=>b.sodium-a.sodium)[0];
+  if(perServ.sodium > 800 && topSodium){
+    recs.push({
+      icon:"🧂", warn:true, tag:"โซเดียมสูง",
+      title:`ลดโซเดียมจาก “${topSodium.name}”`,
+      text:`โซเดียมต่อหนึ่งที่อยู่ที่ประมาณ ${Math.round(perServ.sodium)} มก. ซึ่งเกินเกณฑ์แนะนำต่อมื้อ วัตถุดิบที่ให้โซเดียมมากที่สุดคือ “${topSodium.name}” ลองลดปริมาณลงประมาณหนึ่งในสี่ หรือใช้สูตรน้ำปลา/ซีอิ๊วสูตรลดโซเดียมแทน`
+    });
+  }
+
+  const topSugar = [...contributions].sort((a,b)=>b.sugar-a.sugar)[0];
+  if(perServ.kcal>0 && (total.sugar/servings) > 6 && topSugar && topSugar.sugar>0){
+    recs.push({
+      icon:"🍬", warn:true, tag:"น้ำตาลสูง",
+      title:`ปรับลดน้ำตาลจาก “${topSugar.name}”`,
+      text:`น้ำตาลต่อหนึ่งที่อยู่ที่ประมาณ ${(total.sugar/servings).toFixed(1)} กรัม ลองลดปริมาณ “${topSugar.name}” ลงทีละน้อย แล้วชิมรสก่อนปรุงเพิ่ม จะช่วยคุมความหวานได้โดยไม่เสียรสชาติมากนัก`
+    });
+  }
+
+  const fatKcalShare = total.fat>0 ? (total.fat*9)/total.kcal : 0;
+  if(fatKcalShare > 0.35){
+    recs.push({
+      icon:"🫒", warn:false, tag:"ไขมันค่อนข้างสูง",
+      title:"ลองลดน้ำมันหรือกะทิลงเล็กน้อย",
+      text:`สัดส่วนพลังงานจากไขมันอยู่ที่ประมาณ ${Math.round(fatKcalShare*100)}% ของพลังงานทั้งหมด การลดน้ำมันผัดหรือกะทิลงราวหนึ่งช้อนโต๊ะจะช่วยลดไขมันได้โดยไม่กระทบรสชาติมากนัก`
+    });
+  }
+
+  if(perServ.kcal > 600){
+    recs.push({
+      icon:"🍚", warn:false, tag:"พลังงานต่อที่ค่อนข้างสูง",
+      title:"พิจารณาลดขนาดเสิร์ฟหรือแบ่งเสิร์ฟเพิ่ม",
+      text:`พลังงานต่อหนึ่งที่อยู่ที่ประมาณ ${Math.round(perServ.kcal)} กิโลแคลอรี ลองแบ่งเสิร์ฟเพิ่มอีกหนึ่งที่ หรือลดข้าว/เส้นลงเล็กน้อยเพื่อให้เหมาะกับมื้ออาหารทั่วไป`
+    });
+  }
+
+  if(recs.length === 0){
+    recs.push({
+      icon:"✅", warn:false, tag:"สมดุลดี",
+      title:"สูตรนี้อยู่ในเกณฑ์ที่สมดุล",
+      text:"ค่าพลังงาน โซเดียม น้ำตาล และไขมันต่อหนึ่งที่ อยู่ในเกณฑ์ที่เหมาะสมสำหรับมื้ออาหารทั่วไป สามารถทำตามสูตรนี้ได้ตามปกติ"
+    });
+  }
+  return recs;
+}
+
+/* ===================== RENDER HELPERS ===================== */
+function esc(s){ return (s||"").replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+function round(n,d=0){ const f=Math.pow(10,d); return Math.round(n*f)/f; }
+function pct(n, ref){ return Math.min(999, Math.round((n/ref)*100)); }
+
+function renderStepRail(){
+  let html = '<div class="steprail">';
+  for(let i=1;i<=6;i++){
+    const cls = i===state.step ? "active" : (i<state.step ? "done":"");
+    const clickable = i<=state.maxStep;
+    html += `<button class="step-dot ${cls} ${clickable?'clickable':''}" ${clickable?`data-goto="${i}"`:'disabled'}>
+      <span class="num">${i}</span><span class="lbl">${STEP_LABELS[i-1]}</span>
+    </button>`;
+  }
+  html += '</div>';
+  return html;
+}
+
+function renderLabelCard(){
+  const hasIngredients = state.ingredients.length > 0;
+  if(!hasIngredients){
+    return `<div class="label-card">
+      <div class="label-head">
+        <span class="lbl-eyebrow">ฉลากโภชนาการ · ตัวอย่าง</span>
+        <h2>ข้อมูลโภชนาการ</h2>
+      </div>
+      <div class="label-empty">เพิ่มวัตถุดิบอย่างน้อยหนึ่งอย่าง<br>เพื่อดูค่าพลังงานและสารอาหารที่นี่</div>
+    </div>`;
+  }
+  const {total} = computeTotals(state.ingredients);
+  const servings = Math.max(1, state.servings||1);
+  const useServing = state.servingView === "serving";
+  const d = useServing ? {
+    kcal: total.kcal/servings, protein: total.protein/servings, carb: total.carb/servings,
+    fat: total.fat/servings, sugar: total.sugar/servings, sodium: total.sodium/servings
+  } : total;
+
+  const showToggle = state.step >= 5;
+
+  return `<div class="label-card">
+    <div class="label-head">
+      <span class="lbl-eyebrow">ฉลากโภชนาการ${state.step<5 ? ' · ตัวอย่างเบื้องต้น':''}</span>
+      <h2>${esc(state.dishName) || "เมนูของคุณ"}</h2>
+    </div>
+    <div class="label-sub">
+      <span>จำนวนหน่วยบริโภคต่อสูตร</span><span class="mono">${servings} ที่</span>
+    </div>
+    ${showToggle ? `<div class="serving-toggle">
+      <button data-view="total" class="${!useServing?'active':''}">ต่อสูตรทั้งหมด</button>
+      <button data-view="serving" class="${useServing?'active':''}">ต่อ 1 ที่</button>
+    </div>` : ''}
+    <div class="label-cal">
+      <span class="lc-label">พลังงานทั้งหมด</span>
+      <span class="lc-num">${round(d.kcal)} <span style="font-size:14px;">kcal</span></span>
+    </div>
+    <div class="label-rows">
+      <div class="label-row"><span>ไขมันทั้งหมด</span><span class="val">${round(d.fat,1)} ก.</span></div>
+      <div class="label-row indent"><span>% ของปริมาณแนะนำ*</span><span class="rdi">${pct(d.fat,RDI.fat)}%</span></div>
+      <div class="label-row"><span>คาร์โบไฮเดรตทั้งหมด</span><span class="val">${round(d.carb,1)} ก.</span></div>
+      <div class="label-row indent"><span>น้ำตาล</span><span class="val">${round(d.sugar,1)} ก.</span></div>
+      <div class="label-row"><span>โปรตีน</span><span class="val">${round(d.protein,1)} ก.</span></div>
+      <div class="label-row"><span>โซเดียม</span><span class="val">${round(d.sodium)} มก.</span></div>
+      <div class="label-row indent"><span>% ของปริมาณแนะนำ*</span><span class="rdi">${pct(d.sodium,RDI.sodium)}%</span></div>
+    </div>
+    <div class="label-foot">*% ของปริมาณสารอาหารที่แนะนำให้บริโภคต่อวัน คำนวณโดยประมาณจากพลังงาน 2,000 กิโลแคลอรี ค่าที่แสดงเป็นการประมาณการจากฐานข้อมูลวัตถุดิบทั่วไป ไม่ใช่การวิเคราะห์ในห้องปฏิบัติการ</div>
+  </div>`;
+}
+
+/* ===================== STEP RENDERERS ===================== */
+function renderStep1(){
+  const today = new Date();
+  const dateStr = `${today.getDate()}/${today.getMonth()+1}/${today.getFullYear()+543}`;
+  return `
+  <div style="margin-bottom:40px;">
+    <div class="hero-panel">
+      <div class="ticket-num"><span class="dot"></span>ใบสั่งวิเคราะห์อาหาร · เลขที่ 00${Math.floor(1+Math.random()*8)} · ${dateStr}</div>
+      <div class="hero-grid">
+        <div>
+          <h1>รู้ค่าพลังงาน<br>ก่อน<span class="accent">ตักเสิร์ฟ</span></h1>
+          <p class="lead">กรอกสูตรอาหารที่คุณทำเป็นประจำ ระบบจะค้นข้อมูลวัตถุดิบ คำนวณแคลอรีและสารอาหารให้ทั้งหมด พร้อมคำแนะนำปรับสูตรให้เข้ากับเป้าหมายสุขภาพของคุณ</p>
+          <div class="cta-row">
+            <button class="cta" data-goto="2">
+              เริ่มวิเคราะห์อาหาร
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </button>
+            <span class="cta-note">ไม่ต้องสมัครสมาชิก เริ่มกรอกสูตรได้ทันที</span>
+          </div>
+        </div>
+        <div class="sticker-frame">
+          <svg viewBox="0 0 300 260" xmlns="http://www.w3.org/2000/svg">
+            <ellipse cx="150" cy="215" rx="108" ry="14" fill="#e2d9bf"/>
+            <circle cx="150" cy="140" r="98" fill="#ffffff" stroke="#211C14" stroke-width="3"/>
+            <circle cx="150" cy="140" r="78" fill="none" stroke="#C9B98C" stroke-width="2"/>
+            <path d="M100 148c8-24 34-38 55-34 24 4 40 26 36 48-4 22-30 34-54 30-22-4-42-22-37-44z" fill="#DE9F2E" stroke="#211C14" stroke-width="2.5"/>
+            <path d="M118 132c6-6 14-8 20-4" stroke="#A62F23" stroke-width="2" fill="none" stroke-linecap="round"/>
+            <path d="M235 110c3-16-4-30-16-34-2 10 2 18 8 24" fill="#C63D2F" stroke="#211C14" stroke-width="2.5"/>
+            <path d="M231 78c4-6 4-14 0-18" stroke="#24392E" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+            <path d="M72 100c-10-10-10-24-2-32 8 6 10 16 8 24" fill="#F7F1E1" stroke="#211C14" stroke-width="2.5"/>
+            <path d="M58 92c-10-8-12-22-4-32 8 8 8 18 4 26" fill="#F7F1E1" stroke="#211C14" stroke-width="2"/>
+            <g stroke="#C9B98C" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.85">
+              <path d="M120 40c4 8-4 12 0 20"/>
+              <path d="M150 34c4 8-4 12 0 20"/>
+              <path d="M180 40c4 8-4 12 0 20"/>
+            </g>
+          </svg>
+        </div>
+      </div>
+
+      <hr class="receipt-divider">
+
+      <ul class="receipt-list">
+        <li><span class="ri-num">01</span><span class="ri-text">ค้นข้อมูลวัตถุดิบอัตโนมัติ</span><span class="ri-desc">จับคู่กับฐานข้อมูลโภชนาการทันทีที่พิมพ์</span><span class="ri-check">✓</span></li>
+        <li><span class="ri-num">02</span><span class="ri-text">คำนวณครบทุกสารอาหาร</span><span class="ri-desc">พลังงาน โปรตีน คาร์บ ไขมัน น้ำตาล โซเดียม</span><span class="ri-check">✓</span></li>
+        <li><span class="ri-num">03</span><span class="ri-text">คำแนะนำปรับสูตร</span><span class="ri-desc">ชี้จุดที่ควรปรับ พร้อมเหตุผลจากสูตรจริง</span><span class="ri-check">✓</span></li>
+      </ul>
+    </div>
+  </div>`;
+}
+
+function renderStep2(){
+  const chips = state.ingredients.map((ing,i)=>`
+    <span class="chip">${esc(ing.name)}<button data-remove="${i}" aria-label="ลบวัตถุดิบ">×</button></span>
+  `).join("");
+  return `
+  <div class="panel">
+    <div class="ticket-head"><span class="th-num">รายการที่ <span class="dot">02</span> · สูตรอาหาร</span></div>
+    <h2 class="section-title">กรอกสูตรอาหาร</h2>
+    <p class="section-desc">ตั้งชื่อเมนู แล้วเพิ่มวัตถุดิบทีละอย่างจากฐานข้อมูล พิมพ์ชื่อวัตถุดิบภาษาไทย เช่น หมูสับ น้ำตาลทราย น้ำปลา</p>
+
+    <div class="field">
+      <label for="dishName">ชื่อเมนู</label>
+      <input type="text" id="dishName" placeholder="เช่น ผัดกะเพราหมูสับ" value="${esc(state.dishName)}">
+    </div>
+
+    <div class="add-row">
+      <div class="field">
+        <label for="ingInput">เพิ่มวัตถุดิบ</label>
+        <input type="text" id="ingInput" list="ingredientList" placeholder="พิมพ์ชื่อวัตถุดิบ...">
+        <datalist id="ingredientList">
+          ${Object.keys(DB).map(n=>`<option value="${esc(n)}">`).join("")}
+        </datalist>
+      </div>
+      <button class="btn-secondary" id="addIngBtn">+ เพิ่มวัตถุดิบ</button>
+    </div>
+    <div id="ingError" style="display:none;color:var(--chili);font-size:12.5px;margin-top:8px;"></div>
+
+    ${state.ingredients.length ? `<div class="chips">${chips}</div>` : `<div class="empty-note">ยังไม่มีวัตถุดิบในสูตร ลองเริ่มด้วย “หมูสับ”, “น้ำตาลทราย” หรือ “น้ำปลา”</div>`}
+
+    <div class="nav-buttons">
+      <button class="btn-ghost" data-goto="1">← ย้อนกลับ</button>
+      <button class="btn-primary" id="toStep3" ${(!state.dishName.trim() || state.ingredients.length===0) ? 'disabled':''}>ถัดไป: ระบุปริมาณ →</button>
+    </div>
+  </div>`;
+}
+
+function renderStep3(){
+  const rows = state.ingredients.map((ing,i)=>`
+    <tr>
+      <td class="iname">${esc(ing.name)}</td>
+      <td><input type="number" min="0" step="0.5" value="${ing.amount}" data-qty="${i}" style="width:80px;"></td>
+      <td>
+        <select data-unit="${i}">
+          ${UNITS.map(u=>`<option value="${u}" ${u===ing.unit?'selected':''}>${u}</option>`).join("")}
+        </select>
+      </td>
+      <td class="gramnote">≈ ${round(gramsOf(ing),1)} ก.</td>
+    </tr>
+  `).join("");
+  return `
+  <div class="panel">
+    <div class="ticket-head"><span class="th-num">รายการที่ <span class="dot">03</span> · ปริมาณ</span></div>
+    <h2 class="section-title">ระบุปริมาณวัตถุดิบ</h2>
+    <p class="section-desc">ใส่ปริมาณของแต่ละวัตถุดิบและเลือกหน่วย ระบบจะแปลงเป็นกรัมให้อัตโนมัติเพื่อใช้คำนวณ (ค่าการแปลงหน่วยเป็นค่าโดยประมาณ)</p>
+
+    <div class="field" style="max-width:220px;">
+      <label for="servings">แบ่งเสิร์ฟกี่ที่</label>
+      <input type="number" id="servings" min="1" step="1" value="${state.servings}">
+    </div>
+
+    <table class="qty-table">
+      <thead><tr><th>วัตถุดิบ</th><th>ปริมาณ</th><th>หน่วย</th><th>เทียบกรัม</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+
+    <div class="nav-buttons">
+      <button class="btn-ghost" data-goto="2">← ย้อนกลับ</button>
+      <button class="btn-primary" id="toStep4">วิเคราะห์คุณค่าทางโภชนาการ →</button>
+    </div>
+  </div>`;
+}
+
+function renderStep4(){
+  return `
+  <div class="panel">
+    <div class="loading-wrap">
+      <div class="pot">
+        <div class="steam" style="left:30%; animation-delay:0s;"></div>
+        <div class="steam" style="left:50%; animation-delay:.4s;"></div>
+        <div class="steam" style="left:70%; animation-delay:.8s;"></div>
+        <svg viewBox="0 0 64 64"><path d="M12 26h40l-3 26a4 4 0 0 1-4 4H19a4 4 0 0 1-4-4z" fill="#24392E"/><rect x="10" y="20" width="44" height="8" rx="2" fill="#DE9F2E"/><circle cx="32" cy="24" r="2" fill="#F7F1E1"/></svg>
+      </div>
+      <h3>กำลังคำนวณคุณค่าทางโภชนาการ...</h3>
+      <p>ระบบกำลังรวมค่าพลังงานและสารอาหารจากวัตถุดิบทั้งหมดในสูตร ${esc(state.dishName)}</p>
+      <div class="progress-bar"><div class="progress-fill" id="progFill" style="width:${state.loadingProgress}%;"></div></div>
+    </div>
+  </div>`;
+}
+
+function renderStep5(){
+  return state.resultSubView === "detail" ? renderStep5Detail() : renderStep5Calories();
+}
+
+function renderStep5Calories(){
+  const {total} = computeTotals(state.ingredients);
+  const servings = Math.max(1, state.servings||1);
+  const useServing = state.servingView === "serving";
+  const kcal = useServing ? total.kcal/servings : total.kcal;
+  const perServing = total.kcal/servings;
+
+  return `
+  <div class="panel">
+    <div class="ticket-head"><span class="th-num">รายการที่ <span class="dot">05</span> · ผลลัพธ์</span></div>
+    <h2 class="section-title">มีกี่แคลอรี</h2>
+    <p class="section-desc">พลังงานรวมของ “${esc(state.dishName)}” จากวัตถุดิบทั้งหมดในสูตร แบ่งเสิร์ฟทั้งหมด ${servings} ที่</p>
+
+    <div class="serving-toggle" style="margin:0 0 30px; max-width:320px;">
+      <button data-view="total" class="${!useServing?'active':''}">ต่อสูตรทั้งหมด</button>
+      <button data-view="serving" class="${useServing?'active':''}">ต่อ 1 ที่</button>
+    </div>
+
+    <div style="display:flex; justify-content:center; margin:8px 0 30px;">
+      <div class="sticker-frame" style="transform:rotate(0.8deg); max-width:280px; padding:26px 30px;">
+        <div style="display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:6px;">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#C63D2F" stroke-width="2"><path d="M12 2c1 4-3 5-3 9a3 3 0 0 0 6 0c0-2-1-3-1-5 2 1 3 4 3 6a5 5 0 0 1-10 0c0-5 3-6 5-10z"/></svg>
+          <span class="lc-label" style="font-size:14px; color:#8a8267;">พลังงานรวม</span>
+        </div>
+        <div style="text-align:center;">
+          <span class="mono" style="font-size:56px; font-weight:700; color:var(--chili); line-height:1;">${round(kcal)}</span>
+          <div style="font-size:13px; color:#8a8267; margin-top:4px;">กิโลแคลอรี ${useServing ? '(ต่อ 1 ที่)' : `(ต่อสูตร ${servings} ที่)`}</div>
+        </div>
+      </div>
+    </div>
+    <p style="font-size:13.5px; color:#8a8267; text-align:center;">≈ ${round(perServing)} กิโลแคลอรีต่อหนึ่งที่ ถ้าแบ่งเสิร์ฟ ${servings} ที่</p>
+
+    <div class="nav-buttons">
+      <button class="btn-ghost" data-goto="3">← ย้อนกลับไปแก้ไข</button>
+      <button class="btn-primary" id="toDetailBtn">ดูสารอาหารแบบละเอียด →</button>
+    </div>
+  </div>`;
+}
+
+function renderStep5Detail(){
+  const {total} = computeTotals(state.ingredients);
+  const servings = Math.max(1, state.servings||1);
+  const useServing = state.servingView === "serving";
+  const d = useServing ? {
+    kcal: total.kcal/servings, protein: total.protein/servings, carb: total.carb/servings,
+    fat: total.fat/servings, sugar: total.sugar/servings, sodium: total.sodium/servings
+  } : total;
+
+  function bar(label, val, ref, cls){
+    const p = Math.min(100, (val/ref)*100);
+    return `<div class="bar-group">
+      <div class="bar-label"><span>${label}</span><span class="mono">${round(val,1)}</span></div>
+      <div class="bar-track"><div class="bar-fill ${cls}" style="width:${p}%;"></div></div>
+    </div>`;
+  }
+
+  return `
+  <div class="panel">
+    <div class="ticket-head"><span class="th-num">รายการที่ <span class="dot">05</span> · รายละเอียด</span></div>
+    <h2 class="section-title">สารอาหารทั้งหมด</h2>
+    <p class="section-desc">รายละเอียดคุณค่าทางโภชนาการของ “${esc(state.dishName)}” สลับมุมมองระหว่างค่าต่อสูตรทั้งหมดและต่อหนึ่งที่ได้จากการ์ดฉลากด้านข้าง</p>
+
+    <div class="result-hero">
+      <span class="num-big">${round(d.kcal)}</span>
+      <span class="num-unit">กิโลแคลอรี ${useServing ? '(ต่อ 1 ที่)' : `(ต่อสูตร ${servings} ที่)`}</span>
+    </div>
+
+    ${bar("โปรตีน (ก.)", d.protein, Math.max(RDI.protein, d.protein*1.2), "pandan")}
+    ${bar("คาร์โบไฮเดรต (ก.)", d.carb, Math.max(RDI.carb, d.carb*1.2), "")}
+    ${bar("น้ำตาล (ก.)", d.sugar, Math.max(RDI.sugar, d.sugar*1.2), "chili")}
+    ${bar("ไขมัน (ก.)", d.fat, Math.max(RDI.fat, d.fat*1.2), "")}
+    ${bar("โซเดียม (มก.)", d.sodium, Math.max(RDI.sodium, d.sodium*1.2), "chili")}
+
+    <div class="nav-buttons">
+      <button class="btn-ghost" id="backToCaloriesBtn">← กลับไปดูแคลอรีรวม</button>
+      <button class="btn-primary" data-goto="6">ขอคำแนะนำจาก AI →</button>
+    </div>
+  </div>`;
+}
+
+function renderStep6(){
+  const results = computeTotals(state.ingredients);
+  const recs = computeRecommendations(results, Math.max(1,state.servings||1));
+  const cards = recs.map(r=>`
+    <div class="rec-card ${r.warn?'warn':''}">
+      <span class="ricon">${r.icon}</span>
+      <div>
+        <h3>${esc(r.title)}</h3>
+        <p>${esc(r.text)}</p>
+        <span class="tag">${esc(r.tag)}</span>
+      </div>
+    </div>
+  `).join("");
+
+  return `
+  <div class="panel">
+    <div class="ticket-head"><span class="th-num">รายการที่ <span class="dot">06</span> · คำแนะนำ</span></div>
+    <h2 class="section-title">คำแนะนำสำหรับสูตรนี้</h2>
+    <p class="section-desc">คำแนะนำด้านล่างประเมินจากข้อมูลโภชนาการต่อหนึ่งที่เสิร์ฟของสูตร “${esc(state.dishName)}” เทียบกับเกณฑ์แนะนำต่อมื้อโดยประมาณ</p>
+    ${cards}
+    <div class="nav-buttons">
+      <button class="btn-ghost" data-goto="5">← ดูผลลัพธ์อีกครั้ง</button>
+      <button class="btn-primary" id="restartBtn">เริ่มวิเคราะห์เมนูใหม่</button>
+    </div>
+  </div>`;
+}
+
+/* ===================== MAIN RENDER ===================== */
+function render(){
+  const app = document.getElementById("app");
+  let stepHtml = "";
+  switch(state.step){
+    case 1: stepHtml = renderStep1(); break;
+    case 2: stepHtml = renderStep2(); break;
+    case 3: stepHtml = renderStep3(); break;
+    case 4: stepHtml = renderStep4(); break;
+    case 5: stepHtml = renderStep5(); break;
+    case 6: stepHtml = renderStep6(); break;
+  }
+  const showLabel = state.step >= 4;
+  const narrow = state.step === 2 || state.step === 3;
+
+  app.innerHTML = `
+    <header class="topbar">
+      <div class="logo"><span class="logo-mark">ค</span>ครัวชัวร์</div>
+      ${renderStepRail()}
+    </header>
+    <main>
+      ${showLabel ? `<div class="layout"><div>${stepHtml}</div><div>${renderLabelCard()}</div></div>` : (narrow ? `<div style="max-width:760px;margin:0 auto;">${stepHtml}</div>` : stepHtml)}
+    </main>
+    <footer class="site-foot">ค่าพลังงานและสารอาหารเป็นการประมาณการจากฐานข้อมูลวัตถุดิบทั่วไป ใช้เพื่อเป็นแนวทางเบื้องต้นเท่านั้น</footer>
+  `;
+  attachEvents();
+
+  if(state.step === 4){
+    runAnalysis();
+  }
+}
+
+/* ===================== ANALYSIS SEQUENCE ===================== */
+function runAnalysis(){
+  state.loadingProgress = 0;
+  const fill = document.getElementById("progFill");
+  let p = 0;
+  const timer = setInterval(()=>{
+    p += 14 + Math.random()*10;
+    if(p >= 100){
+      p = 100;
+      clearInterval(timer);
+      setTimeout(()=>{
+        state.results = computeTotals(state.ingredients);
+        state.step = 5;
+        state.maxStep = Math.max(state.maxStep, 5);
+        render();
+      }, 300);
+    }
+    if(fill) fill.style.width = p + "%";
+  }, 220);
+}
+
+/* ===================== EVENTS ===================== */
+function attachEvents(){
+  document.querySelectorAll("[data-goto]").forEach(el=>{
+    el.addEventListener("click", ()=>{
+      const target = parseInt(el.dataset.goto,10);
+      if(target <= state.maxStep || target === state.step+1){
+        state.step = target;
+        if(target === 5) state.resultSubView = "calories";
+        state.maxStep = Math.max(state.maxStep, target);
+        render();
+        window.scrollTo({top:0, behavior:"smooth"});
+      }
+    });
+  });
+
+  const dishInput = document.getElementById("dishName");
+  if(dishInput){
+    dishInput.addEventListener("input", e=>{ state.dishName = e.target.value; syncNavState(); });
+  }
+
+  const addBtn = document.getElementById("addIngBtn");
+  const ingInput = document.getElementById("ingInput");
+  if(addBtn && ingInput){
+    const addFn = ()=>{
+      const val = ingInput.value.trim();
+      const errBox = document.getElementById("ingError");
+      if(!val) return;
+      if(!DB[val]){
+        errBox.style.display = "block";
+        errBox.textContent = `ไม่พบ “${val}” ในฐานข้อมูล ลองเลือกจากรายการที่แนะนำ เช่น หมูสับ, น้ำตาลทราย, น้ำปลา, กระเทียม`;
+        return;
+      }
+      errBox.style.display = "none";
+      state.ingredients.push({name: val, amount: 1, unit: "ช้อนโต๊ะ"});
+      ingInput.value = "";
+      render();
+    };
+    addBtn.addEventListener("click", addFn);
+    ingInput.addEventListener("keydown", e=>{ if(e.key==="Enter"){ e.preventDefault(); addFn(); }});
+  }
+
+  document.querySelectorAll("[data-remove]").forEach(el=>{
+    el.addEventListener("click", ()=>{
+      const i = parseInt(el.dataset.remove,10);
+      state.ingredients.splice(i,1);
+      render();
+    });
+  });
+
+  const toStep3 = document.getElementById("toStep3");
+  if(toStep3){
+    toStep3.addEventListener("click", ()=>{
+      if(toStep3.disabled) return;
+      state.step = 3; state.maxStep = Math.max(state.maxStep,3); render();
+      window.scrollTo({top:0, behavior:"smooth"});
+    });
+  }
+
+  const servingsInput = document.getElementById("servings");
+  if(servingsInput){
+    servingsInput.addEventListener("input", e=>{
+      state.servings = Math.max(1, parseFloat(e.target.value)||1);
+      const card = document.querySelector(".label-card");
+      if(card) card.outerHTML = renderLabelCard();
+    });
+  }
+
+  document.querySelectorAll("[data-qty]").forEach(el=>{
+    el.addEventListener("input", e=>{
+      const i = parseInt(el.dataset.qty,10);
+      state.ingredients[i].amount = Math.max(0, parseFloat(e.target.value)||0);
+      const row = el.closest("tr");
+      row.querySelector(".gramnote").textContent = `≈ ${round(gramsOf(state.ingredients[i]),1)} ก.`;
+      const card = document.querySelector(".label-card");
+      if(card) card.outerHTML = renderLabelCard();
+    });
+  });
+  document.querySelectorAll("[data-unit]").forEach(el=>{
+    el.addEventListener("change", e=>{
+      const i = parseInt(el.dataset.unit,10);
+      state.ingredients[i].unit = e.target.value;
+      const row = el.closest("tr");
+      row.querySelector(".gramnote").textContent = `≈ ${round(gramsOf(state.ingredients[i]),1)} ก.`;
+      const card = document.querySelector(".label-card");
+      if(card) card.outerHTML = renderLabelCard();
+    });
+  });
+
+  const toStep4 = document.getElementById("toStep4");
+  if(toStep4){
+    toStep4.addEventListener("click", ()=>{
+      state.step = 4; render();
+      window.scrollTo({top:0, behavior:"smooth"});
+    });
+  }
+
+  const toDetailBtn = document.getElementById("toDetailBtn");
+  if(toDetailBtn){
+    toDetailBtn.addEventListener("click", ()=>{
+      state.resultSubView = "detail";
+      render();
+      window.scrollTo({top:0, behavior:"smooth"});
+    });
+  }
+  const backToCaloriesBtn = document.getElementById("backToCaloriesBtn");
+  if(backToCaloriesBtn){
+    backToCaloriesBtn.addEventListener("click", ()=>{
+      state.resultSubView = "calories";
+      render();
+      window.scrollTo({top:0, behavior:"smooth"});
+    });
+  }
+
+  document.querySelectorAll("[data-view]").forEach(el=>{
+    el.addEventListener("click", ()=>{
+      state.servingView = el.dataset.view;
+      render();
+    });
+  });
+
+  const restartBtn = document.getElementById("restartBtn");
+  if(restartBtn){
+    restartBtn.addEventListener("click", ()=>{
+      resetState();
+      window.scrollTo({top:0, behavior:"smooth"});
+    });
+  }
+}
+
+function syncNavState(){
+  const btn = document.getElementById("toStep3");
+  if(btn) btn.disabled = (!state.dishName.trim() || state.ingredients.length===0);
+}
+
+render();
+</script>
+</body>
+</html>
