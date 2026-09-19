@@ -1,38 +1,32 @@
 <?php
-// 1. Define your MySQL database credentials
-$host = "localhost";
-$db_user = "root";       // Default username for local environments like XAMPP
-$db_pass = "";           // Default password is blank for local XAMPP
-$db_name = "my_database"; // Change to your actual database name
+// Include the database connection file
+include 'login.php';
 
-// 2. Establish connection to MySQL using MySQLi
-$conn = new mysqli($host, $db_user, $db_pass, $db_name);
-
-// Check if the connection failed
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
-
-// 3. Process the form data when submitted
+// Check if the form was actually submitted
 if (isset($_POST['submit'])) {
-    $username = $_POST['username'];
+    
+    // Collect and sanitize input variables from the form
+    $user = $_POST['username'];
     $email = $_POST['email'];
 
-    // 4. Securely prepare the SQL injection-proof query
+    // Use Prepared Statements to securely insert data
     $stmt = $conn->prepare("INSERT INTO users (username, email) VALUES (?, ?)");
-    $stmt->bind_param("ss", $username, $email);
+    $stmt->bind_param("ss", $user, $email);
 
-    // 5. Execute and check success
+    // Execute the query and check if successful
     if ($stmt->execute()) {
-        echo "Data saved successfully!";
+        echo "<h3>Data successfully submitted to the database!</h3>";
+        echo "<a href='login.php'>Go Back</a>";
     } else {
-        echo "Error saving data: " . $stmt->error;
+        echo "Error: " . $stmt->error;
     }
 
-    // Close connections
+    // Close the statement and connection
     $stmt->close();
+    $conn->close();
+} else {
+    // Redirect back to the form if someone tries to access this page directly
+    header("Location: login.php");
+    exit();
 }
-
-$conn->close();
-
 ?>
