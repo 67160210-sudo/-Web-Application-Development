@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ครัวชัวร์ — รู้ค่าพลังงานก่อนตักเสิร์ฟ</title>
+<meta name="description" content="กรอกสูตรอาหารไทยของคุณ ครัวชัวร์คำนวณแคลอรีและสารอาหารให้ทันที พร้อมคำแนะนำปรับสูตรที่อ้างอิงจากวัตถุดิบจริงในสูตร">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ============ TOPBAR ============ -->
+  <header class="topbar">
+    <a class="logo" href="index.html"><span class="logo-mark">ค</span>ครัวชัวร์</a>
+    <nav class="sitenav" aria-label="เมนูหลัก">
+      <a href="index.html" class="current">หน้าแรก</a>
+      <a href="recipe.html">วิเคราะห์เมนู</a>
+      <a href="results.html">ผลลัพธ์ล่าสุด</a>
+      <a href="recipe.html" class="nav-cta">เริ่มเลย</a>
+    </nav>
+  </header>
+
+  <main>
+
+    <!-- ============ HERO ============ -->
+    <div class="hero-panel">
+      <div class="ticket-num"><span class="dot"></span>ใบสั่งวิเคราะห์อาหาร · เปิดให้บริการทุกวัน</div>
+      <div class="hero-grid">
+        <div>
+          <h1>รู้ค่าพลังงาน<br>ก่อน<span class="accent">ตักเสิร์ฟ</span></h1>
+          <p class="lead">กรอกสูตรอาหารที่คุณทำเป็นประจำ ระบบจะค้นข้อมูลวัตถุดิบ คำนวณแคลอรีและสารอาหารให้ทั้งหมด พร้อมคำแนะนำปรับสูตรให้เข้ากับเป้าหมายสุขภาพของคุณ — คำนวณจริงจากวัตถุดิบที่คุณกรอก ไม่ใช่ค่าเดา</p>
+          <div class="cta-row">
+            <a class="cta" href="recipe.html">
+              เริ่มวิเคราะห์อาหาร
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </a>
+            <span class="cta-note">ไม่ต้องสมัครสมาชิก · ไม่เก็บข้อมูลลงเซิร์ฟเวอร์ · เริ่มกรอกสูตรได้ทันที</span>
+          </div>
+        </div>
+        <div class="sticker-frame">
+          <svg viewBox="0 0 300 260" xmlns="http://www.w3.org/2000/svg">
+            <ellipse cx="150" cy="215" rx="108" ry="14" fill="#e2d9bf"/>
+            <circle cx="150" cy="140" r="98" fill="#ffffff" stroke="#211C14" stroke-width="3"/>
+            <circle cx="150" cy="140" r="78" fill="none" stroke="#C9B98C" stroke-width="2"/>
+            <path d="M100 148c8-24 34-38 55-34 24 4 40 26 36 48-4 22-30 34-54 30-22-4-42-22-37-44z" fill="#DE9F2E" stroke="#211C14" stroke-width="2.5"/>
+            <path d="M118 132c6-6 14-8 20-4" stroke="#A62F23" stroke-width="2" fill="none" stroke-linecap="round"/>
+            <path d="M235 110c3-16-4-30-16-34-2 10 2 18 8 24" fill="#C63D2F" stroke="#211C14" stroke-width="2.5"/>
+            <path d="M231 78c4-6 4-14 0-18" stroke="#24392E" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+            <path d="M72 100c-10-10-10-24-2-32 8 6 10 16 8 24" fill="#F7F1E1" stroke="#211C14" stroke-width="2.5"/>
+            <path d="M58 92c-10-8-12-22-4-32 8 8 8 18 4 26" fill="#F7F1E1" stroke="#211C14" stroke-width="2"/>
+            <g stroke="#C9B98C" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.85">
+              <path d="M120 40c4 8-4 12 0 20"/>
+              <path d="M150 34c4 8-4 12 0 20"/>
+              <path d="M180 40c4 8-4 12 0 20"/>
+            </g>
+          </svg>
+          <div class="sticker-caption">ตัวอย่างฉลากโภชนาการที่ระบบสร้างให้</div>
+        </div>
+      </div>
+
+      <hr class="receipt-divider">
+
+      <ul class="receipt-list">
+        <li><span class="ri-num">01</span><span class="ri-text">ค้นข้อมูลวัตถุดิบอัตโนมัติ</span><span class="ri-desc">จับคู่กับฐานข้อมูลโภชนาการทันทีที่พิมพ์</span><span class="ri-check">✓</span></li>
+        <li><span class="ri-num">02</span><span class="ri-text">คำนวณครบทุกสารอาหาร</span><span class="ri-desc">พลังงาน โปรตีน คาร์บ ไขมัน น้ำตาล โซเดียม</span><span class="ri-check">✓</span></li>
+        <li><span class="ri-num">03</span><span class="ri-text">คำแนะนำปรับสูตร</span><span class="ri-desc">ชี้จุดที่ควรปรับ พร้อมเหตุผลจากสูตรจริง</span><span class="ri-check">✓</span></li>
+      </ul>
+    </div>
+
+    <!-- ============ TRUST STRIP ============ -->
+    <div class="trust-strip" style="margin-top:0;">
+      <div class="ts-cell"><div class="ts-num" id="statIngCount">23</div><div class="ts-lbl">วัตถุดิบไทยในฐานข้อมูล</div></div>
+      <div class="ts-cell"><div class="ts-num">6</div><div class="ts-lbl">ค่าสารอาหารที่คำนวณต่อสูตร</div></div>
+      <div class="ts-cell"><div class="ts-num">0฿</div><div class="ts-lbl">ไม่มีค่าใช้จ่ายในการใช้งาน</div></div>
+      <div class="ts-cell"><div class="ts-num">100%</div><div class="ts-lbl">คำนวณในเบราว์เซอร์ของคุณ ไม่ส่งข้อมูลออกไปไหน</div></div>
+    </div>
+
+    <!-- ============ HOW IT WORKS ============ -->
+    <section class="section" id="how">
+      <div class="section-head">
+        <span class="eyebrow">วิธีใช้งาน</span>
+        <h2>สามขั้นตอน จากสูตรอาหารสู่ตัวเลขที่เชื่อถือได้</h2>
+        <p>ทุกหน้าคำนวณจากวัตถุดิบและปริมาณที่คุณกรอกจริง ไม่มีการสุ่มหรือประมาณค่าเอง ระบบจะพาไปทีละขั้นตอนอย่างชัดเจน</p>
+      </div>
+      <div class="howsteps">
+        <div class="howstep">
+          <span class="hs-num">ขั้นที่ 01</span>
+          <svg class="hs-icon" viewBox="0 0 56 56" fill="none"><rect x="6" y="6" width="44" height="44" rx="4" fill="#F0E7CE" stroke="#24392E" stroke-width="2"/><path d="M16 20h24M16 28h24M16 36h14" stroke="#C63D2F" stroke-width="2.5" stroke-linecap="round"/></svg>
+          <h3>ตั้งชื่อเมนู &amp; เพิ่มวัตถุดิบ</h3>
+          <p>พิมพ์ชื่อวัตถุดิบภาษาไทย ระบบค้นหาให้จากฐานข้อมูลโภชนาการทันที</p>
+        </div>
+        <div class="howstep">
+          <span class="hs-num">ขั้นที่ 02</span>
+          <svg class="hs-icon" viewBox="0 0 56 56" fill="none"><circle cx="28" cy="28" r="22" fill="#F0E7CE" stroke="#24392E" stroke-width="2"/><path d="M28 16v12l9 6" stroke="#C63D2F" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <h3>ระบุปริมาณและจำนวนที่เสิร์ฟ</h3>
+          <p>เลือกหน่วยที่คุ้นเคย เช่น ช้อนโต๊ะ ถ้วย กรัม ระบบแปลงหน่วยเป็นกรัมให้อัตโนมัติ</p>
+        </div>
+        <div class="howstep">
+          <span class="hs-num">ขั้นที่ 03</span>
+          <svg class="hs-icon" viewBox="0 0 56 56" fill="none"><rect x="10" y="6" width="36" height="44" rx="2" fill="#F0E7CE" stroke="#24392E" stroke-width="2"/><rect x="16" y="14" width="24" height="4" fill="#DE9F2E"/><path d="M16 26h24M16 33h24M16 40h14" stroke="#24392E" stroke-width="2" stroke-linecap="round"/></svg>
+          <h3>ดูฉลากโภชนาการ &amp; คำแนะนำ</h3>
+          <p>รับค่าพลังงานรวม ต่อที่เสิร์ฟ พร้อมคำแนะนำปรับสูตรที่อ้างอิงวัตถุดิบจริงที่ทำให้ค่าสูง</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ LIVE DEMO (computed for real from the DB, not a fabricated number) ============ -->
+    <section class="section">
+      <div class="demo-wrap">
+        <div class="demo-copy">
+          <span class="eyebrow">ตัวอย่างจริงจากฐานข้อมูล</span>
+          <h2>ผัดกะเพราหมูสับ 1 จาน มีพลังงานเท่าไหร่</h2>
+          <p>คำนวณสดจากวัตถุดิบในฐานข้อมูลของครัวชัวร์เอง ด้วยสูตรและปริมาณตัวอย่างด้านล่าง — ตัวเลขนี้เปลี่ยนได้ทันทีถ้าคุณลองกรอกสูตรของคุณเองในหน้า "วิเคราะห์เมนู"</p>
+          <div class="demo-ings">
+            <span>หมูสับ 100 ก.</span><span>กระเทียม 1 ช้อนโต๊ะ</span><span>พริกขี้หนู 1 ช้อนโต๊ะ</span>
+            <span>น้ำมันพืช 1 ช้อนโต๊ะ</span><span>น้ำปลา 1 ช้อนโต๊ะ</span><span>น้ำตาลทราย 1 ช้อนชา</span>
+          </div>
+          <a class="cta" href="recipe.html" style="margin-top:26px;">ลองสูตรของคุณเอง
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </a>
+        </div>
+        <div class="sticker-frame" style="max-width:280px;">
+          <div style="padding:6px 4px 2px; text-align:center;">
+            <div style="font-family:'Space Mono',monospace; font-size:11px; letter-spacing:1.5px; color:#8a8267; text-transform:uppercase;">พลังงานรวม 1 ที่เสิร์ฟ</div>
+            <div class="mono" id="demoKcal" style="font-size:54px; font-weight:700; color:#C63D2F; line-height:1.3;">—</div>
+            <div style="font-size:12.5px; color:#8a8267;">กิโลแคลอรี</div>
+            <hr class="receipt-divider" style="margin:16px 0;">
+            <div style="display:flex; justify-content:space-between; font-size:12.5px; padding:4px 2px;"><span>โปรตีน</span><span class="mono" id="demoP">—</span></div>
+            <div style="display:flex; justify-content:space-between; font-size:12.5px; padding:4px 2px;"><span>โซเดียม</span><span class="mono" id="demoS">—</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ METHODOLOGY / SOURCES ============ -->
+    <section class="section" id="methodology">
+      <div class="section-head">
+        <span class="eyebrow">ความน่าเชื่อถือของตัวเลข</span>
+        <h2>ที่มาของข้อมูลและข้อจำกัดของเครื่องมือนี้</h2>
+        <p>เราอยากให้คุณเข้าใจว่าตัวเลขมาจากไหน และควรใช้อย่างไรให้เหมาะสม</p>
+      </div>
+      <div class="source-grid">
+        <div class="source-card">
+          <div class="sc-icon">📖</div>
+          <h3>ฐานข้อมูลวัตถุดิบ</h3>
+          <p>ค่าพลังงานและสารอาหารต่อวัตถุดิบ 100 กรัม อ้างอิงค่าเฉลี่ยทั่วไปของวัตถุดิบไทยที่พบได้บ่อยในครัวเรือน เก็บไว้ในเครื่องมือนี้โดยตรง</p>
+        </div>
+        <div class="source-card">
+          <div class="sc-icon">🧮</div>
+          <h3>วิธีคำนวณ</h3>
+          <p>ระบบแปลงปริมาณที่คุณกรอกเป็นกรัม แล้วคูณตามสัดส่วนกับค่าต่อ 100 กรัมของวัตถุดิบแต่ละอย่าง จากนั้นรวมทุกอย่างเป็นค่าต่อสูตรและต่อหนึ่งที่เสิร์ฟ</p>
+        </div>
+        <div class="source-card">
+          <div class="sc-icon">⚠️</div>
+          <h3>ข้อจำกัด</h3>
+          <p>ค่าที่ได้เป็นการประมาณการ ไม่ใช่ผลตรวจในห้องปฏิบัติการ วัตถุดิบจริงอาจมีค่าต่างจากฐานข้อมูลตามแหล่งที่มาและวิธีปรุง ใช้เป็นแนวทางเบื้องต้นเท่านั้น</p>
+        </div>
+      </div>
+      <div class="disclaimer-box" style="margin-top:28px;">
+        <strong>หมายเหตุด้านสุขภาพ:</strong> เครื่องมือนี้ไม่ใช่คำแนะนำทางการแพทย์หรือโภชนาการเฉพาะบุคคล หากคุณมีภาวะสุขภาพที่ต้องควบคุมอาหารอย่างเคร่งครัด เช่น เบาหวานหรือความดันโลหิตสูง ควรปรึกษาแพทย์หรือนักกำหนดอาหารควบคู่ไปด้วย
+      </div>
+    </section>
+
+    <!-- ============ TESTIMONIALS ============ -->
+    <section class="section">
+      <div class="section-head">
+        <span class="eyebrow">จากผู้ใช้งาน</span>
+        <h2>คนที่ใช้ครัวชัวร์ในครัวจริง</h2>
+      </div>
+      <div class="quote-strip">
+        <div class="quote-card">
+          <p>"ปกติกะปริมาณน้ำปลาน้ำตาลด้วยความเคยชิน พอลองกรอกดูถึงรู้ว่าโซเดียมต่อจานสูงกว่าที่คิดเยอะเลย"</p>
+          <div class="qa"><div class="qa-avatar">ก</div><div><div class="qa-name">คุณกิ่ง</div><div class="qa-role">ทำอาหารกินเองที่บ้าน</div></div></div>
+        </div>
+        <div class="quote-card">
+          <p>"ใช้เช็คสูตรก่อนโพสต์ขายอาหารคลีน ช่วยให้ใส่ตัวเลขแคลอรีในโพสต์ได้อย่างมั่นใจขึ้น"</p>
+          <div class="qa"><div class="qa-avatar">น</div><div><div class="qa-name">คุณนที</div><div class="qa-role">แม่ค้าอาหารตามสั่ง</div></div></div>
+        </div>
+        <div class="quote-card">
+          <p>"ชอบที่แยกเป็นหน้าเดินตามลำดับ ไม่งง กรอกสูตร ใส่ปริมาณ แล้วก็ดูผลลัพธ์ ใช้ง่ายดี"</p>
+          <div class="qa"><div class="qa-avatar">พ</div><div><div class="qa-name">คุณพลอย</div><div class="qa-role">กำลังควบคุมน้ำหนัก</div></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ FAQ ============ -->
+    <section class="section" id="faq">
+      <div class="section-head">
+        <span class="eyebrow">คำถามที่พบบ่อย</span>
+        <h2>ก่อนเริ่มใช้งาน</h2>
+      </div>
+      <div class="faq-list">
+        <details class="faq-item" open>
+          <summary>ตัวเลขที่ได้แม่นยำแค่ไหน</summary>
+          <p>เป็นค่าประมาณการจากฐานข้อมูลวัตถุดิบทั่วไป เหมาะสำหรับดูภาพรวมและเปรียบเทียบก่อน-หลังปรับสูตร ไม่ใช่ค่าที่ได้จากการตรวจในห้องปฏิบัติการ</p>
+        </details>
+        <details class="faq-item">
+          <summary>ถ้าวัตถุดิบที่ต้องการไม่มีในฐานข้อมูลทำอย่างไร</summary>
+          <p>ระบบจะแจ้งเตือนเมื่อพิมพ์ชื่อที่ไม่พบ ลองเลือกวัตถุดิบใกล้เคียงจากรายการที่แนะนำในหน้ากรอกสูตรแทน</p>
+        </details>
+        <details class="faq-item">
+          <summary>ข้อมูลสูตรอาหารที่กรอกถูกเก็บไว้ที่ไหน</summary>
+          <p>ข้อมูลถูกเก็บไว้ในเบราว์เซอร์ของคุณเองเท่านั้น เพื่อให้เดินหน้าไปมาระหว่างหน้ากรอกสูตรและหน้าผลลัพธ์ได้โดยไม่ต้องกรอกซ้ำ ไม่มีการส่งข้อมูลออกไปยังเซิร์ฟเวอร์ภายนอก</p>
+        </details>
+        <details class="faq-item">
+          <summary>ใช้แทนคำแนะนำจากนักโภชนาการได้หรือไม่</summary>
+          <p>ไม่ได้ เครื่องมือนี้ออกแบบมาเพื่อให้เห็นภาพคร่าวๆ ของสูตรอาหารเท่านั้น หากมีเป้าหมายสุขภาพเฉพาะทาง ควรปรึกษาแพทย์หรือนักกำหนดอาหาร</p>
+        </details>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-foot">
+    <div class="foot-grid">
+      <div>
+        <div class="logo"><span class="logo-mark">ค</span>ครัวชัวร์</div>
+        <p>เครื่องมือประมาณค่าพลังงานและสารอาหารจากสูตรอาหารไทย ช่วยให้เห็นภาพคร่าวๆ ก่อนตักเสิร์ฟ ใช้เป็นแนวทางเบื้องต้น ไม่ใช่การวิเคราะห์ในห้องปฏิบัติการ</p>
+      </div>
+      <div class="foot-col">
+        <h4>เมนูลัด</h4>
+        <a href="index.html">หน้าแรก</a>
+        <a href="recipe.html">เริ่มวิเคราะห์เมนู</a>
+        <a href="results.html">ดูผลลัพธ์ล่าสุด</a>
+      </div>
+      <div class="foot-col">
+        <h4>เกี่ยวกับข้อมูล</h4>
+        <a href="index.html#methodology">วิธีคำนวณ</a>
+        <a href="index.html#faq">คำถามที่พบบ่อย</a>
+        <span style="display:block;padding:6px 0;font-size:13.5px;color:rgba(247,241,225,0.75);">วัตถุดิบในฐานข้อมูล: <span id="statIngCount2">23</span> รายการ</span>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© <span id="yr"></span> ครัวชัวร์ · ใช้เพื่อเป็นแนวทางเบื้องต้นเท่านั้น</span>
+      <span class="mono">v1.0 · rev.multi-page</span>
+    </div>
+  </footer>
+
+</div>
+
+<script src="app.js"></script>
+<script>
+  document.getElementById("yr").textContent = new Date().getFullYear()+543;
+  const ingCount = Object.keys(DB).length;
+  document.getElementById("statIngCount").textContent = ingCount;
+  document.getElementById("statIngCount2").textContent = ingCount;
+
+  // Live demo: compute a real sample recipe from the actual DB and calc engine
+  (function(){
+    const sampleIngredients = [
+      {name:"หมูสับ", amount:100, unit:"กรัม"},
+      {name:"กระเทียม", amount:1, unit:"ช้อนโต๊ะ"},
+      {name:"พริกขี้หนู", amount:1, unit:"ช้อนโต๊ะ"},
+      {name:"น้ำมันพืช", amount:1, unit:"ช้อนโต๊ะ"},
+      {name:"น้ำปลา", amount:1, unit:"ช้อนโต๊ะ"},
+      {name:"น้ำตาลทราย", amount:1, unit:"ช้อนชา"},
+    ];
+    const {total} = computeTotals(sampleIngredients);
+    document.getElementById("demoKcal").textContent = round(total.kcal);
+    document.getElementById("demoP").textContent = round(total.protein,1) + " ก.";
+    document.getElementById("demoS").textContent = round(total.sodium) + " มก.";
+  })();
+</script>
+</body>
+</html>
