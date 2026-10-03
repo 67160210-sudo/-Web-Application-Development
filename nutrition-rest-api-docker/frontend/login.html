@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ครัวชัวร์ — เข้าสู่ระบบ / สมัครสมาชิก</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chonburi&family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+  .login-wrapper {
+    min-height: calc(100vh - 150px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+  }
+  .login-card {
+    width: 100%;
+    max-width: 440px;
+    background: #fff;
+    border: 1px solid var(--khaki);
+    border-top: 5px solid var(--turmeric);
+    border-radius: var(--radius);
+    padding: 40px;
+    box-shadow: var(--paper-shadow);
+  }
+  .login-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-family: 'Chonburi', sans-serif;
+    font-size: 26px;
+    color: var(--pandan);
+    margin-bottom: 24px;
+  }
+  .login-card .field {
+    margin-bottom: 20px;
+  }
+  .login-card button.btn-primary {
+    width: 100%;
+    margin-top: 10px;
+    padding: 14px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <header class="topbar">
+    <div class="logo"><span class="logo-mark">ค</span>ครัวชัวร์</div>
+  </header>
+
+  <main>
+    <div class="login-wrapper">
+      <div class="login-card">
+        <div class="login-logo"><span class="logo-mark">ค</span>ครัวชัวร์</div>
+        <div class="ticket-head" style="justify-content: center; margin-bottom: 20px;">
+          <span class="th-num">เข้าสู่ระบบ / สมัครสมาชิกใหม่ <span class="dot">●</span></span>
+        </div>
+
+        <!-- Form action points to the PHP processor backend -->
+        <form action="login.php" method="POST">
+          <div class="field">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required placeholder="กรอกชื่อผู้ใช้งานของคุณ">
+          </div>
+
+          <div class="field">
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required placeholder="name@example.com">
+          </div>
+
+          <button type="submit" name="submit" class="btn-primary">เข้าสู่ระบบ / สมัครสมาชิก</button>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-foot">ค่าพลังงานและสารอาหารเป็นการประมาณการจากฐานข้อมูลวัตถุดิบทั่วไป ใช้เพื่อเป็นแนวทางเบื้องต้นเท่านั้น</footer>
+</div>
+</body>
+</html>
